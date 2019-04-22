@@ -4,6 +4,7 @@ import com.alibaba.dubbo.config.annotation.Reference;
 import com.alibaba.fastjson.JSON;
 import com.qf.entity.User;
 import com.qf.service.IUserService;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Controller;
@@ -27,6 +28,9 @@ public class SsoController {
     @Autowired
     private RedisTemplate redisTemplate;
 
+    @Autowired
+    private RabbitTemplate rabbitTemplate;
+
     /**
      * 跳转注册的方法
      * @return
@@ -41,7 +45,8 @@ public class SsoController {
      * @return
      */
     @RequestMapping("/toLogin")
-    public String toLogin(){
+    public String toLogin(String returnUrl, ModelMap map){
+        map.put("returnUrl",returnUrl);
         return "login";
     }
 
@@ -65,7 +70,7 @@ public class SsoController {
      * @return
      */
     @RequestMapping("/login")
-    public String login(String username, String password, ModelMap map, HttpServletResponse response){
+    public String login(String username, String password, ModelMap map, HttpServletResponse response,String returnUrl){
         User user = userService.loginUser(username, password);
         //登录失败，返回到登录页面
         if (user==null){
@@ -73,6 +78,13 @@ public class SsoController {
             map.put("erro","0");
             return "login";
         }
+
+        //如果没有设置登录成功的url，则默认跳转回首页
+        System.out.println(returnUrl);
+        if(returnUrl == null || returnUrl.equals("")){
+            returnUrl = "http://localhost:8081/";
+        }
+
         //把用户信息存放到redis服务器中,设置缓存的时间
         String token= UUID.randomUUID().toString();
         redisTemplate.opsForValue().set(token,user);
@@ -84,8 +96,6 @@ public class SsoController {
         cookie.setPath("/");
         response.addCookie(cookie);
 
-
-        String returnUrl="http://localhost:8081";
         //登录成功
         return "redirect:"+returnUrl;
     }
@@ -103,6 +113,24 @@ public class SsoController {
         //将对象转化为json字符串返回
 
         return  user==null?"ifLogin(null)":"ifLogin(' "+ JSON.toJSONString(user) +" ')";
+    }
+
+    /**
+     * 注销
+     * @return
+     */
+    @RequestMapping("/logout")
+    public String logout(@CookieValue(name = "login_token", required = false) String loginToken, HttpServletResponse response){
+
+        //清空redis
+        redisTemplate.delete(loginToken);
+
+        //请求cookie
+        Cookie cookie = new Cookie("login_token", null);
+        cookie.setMaxAge(0);
+        response.addCookie(cookie);
+
+        return "login";
     }
 
 }

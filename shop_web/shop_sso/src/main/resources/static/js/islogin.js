@@ -34,10 +34,10 @@ $(function (){
         success:function (data) {
             if (data!=null){
                 //已登录
-                $("#pid").html(JSON.parse(data).nickname + "您好，欢迎来到<b><a>ShopCZ商城</a></b>");
+                $("#pid").html(JSON.parse(data).nickname + "您好，欢迎来到<b><a>ShopCZ商城</a><a href='http://localhost:8084/sso/logout'>注销</a></b>");
             }else{
                 //未登录
-                $("#pid").html('[<a href="http://localhost:8084/sso/toLogin">登录</a>][<a href="http://localhost:8084/sso/toRegister">注册</a>]');
+                $("#pid").html('[<a href="javascript:login()">登录</a>][<a href="http://localhost:8084/sso/toRegister">注册</a>]');
             }
         },
         dataType:"jsonp",
@@ -45,3 +45,11 @@ $(function (){
     });
 });
 
+//进行登录
+function login(){
+    var returnUrl = location.href;
+    //编码url
+    returnUrl = encodeURI(returnUrl);
+    alert("returnUrl"+returnUrl)
+    location.href = "http://localhost:8084/sso/toLogin?returnUrl=" + returnUrl;
+}
