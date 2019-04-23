@@ -1,0 +1,19 @@
+server:
+  port: 8085
+spring:
+  rabbitmq:
+    host: 192.168.72.128
+    username: admin
+    password: admin
+    virtual-host: /admin
+    port: 5672
+
+  #邮件
+  mail:
+    host: smtp.sina.com
+    protocol: smtp
+    #发送方的邮箱
+    username: eternity16825@sina.com
+    password: phy1682512423
+
+

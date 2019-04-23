@@ -41,13 +41,22 @@ public class UserServiceImpl implements IUserService {
         return user;
     }
 
+
+
     /**
      * 激活用户
-     * @param user
      * @return
      */
     @Override
-    public int activateUser(User user) {
-        return 0;
+    public int activateUser(String username) {
+        QueryWrapper<User> queryWrapper=new QueryWrapper<>();
+        queryWrapper.eq("username",username);
+        User user = userMapper.selectOne(queryWrapper);
+        //修改用户的状态
+        user.setStatus(1);
+        //提交到数据库
+        //userMapper.insert(user);
+        userMapper.updateById(user);
+        return 1;
     }
 }

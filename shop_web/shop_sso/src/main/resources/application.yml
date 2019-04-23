@@ -1,0 +1,23 @@
+server:
+  port: 8084
+
+dubbo:
+  application:
+    name: sso_web
+  registry:
+    address: zookeeper://192.168.72.128:2181
+  #未开启服务也能启动
+  consumer:
+    check: false
+
+spring:
+  #消息中间件rabbitMQ
+  rabbitmq:
+    host: 192.168.72.128
+    username: admin
+    password: admin
+    virtual-host: /admin
+    port: 5672
+  redis:
+    host: 192.168.72.128
+    password: root

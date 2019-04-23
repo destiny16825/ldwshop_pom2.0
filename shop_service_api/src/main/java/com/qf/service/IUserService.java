@@ -9,5 +9,5 @@ public interface IUserService {
     //登录中户
     User loginUser(String username,String password);
     //激活用户
-    int activateUser(User user);
+    int activateUser(String username);
 }
